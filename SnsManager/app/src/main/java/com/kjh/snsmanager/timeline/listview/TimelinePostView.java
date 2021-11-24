@@ -13,8 +13,14 @@ import com.kjh.snsmanager.timeline.listitem.TimelineItem;
 
 //abstract public class TimelinePostView extends LinearLayout {
 abstract public class TimelinePostView extends ScrollView {
+    private TimelineItem data;
 
-    public TimelinePostView(Context context) {
+    public TimelinePostView(Context context, TimelineItem data) {
         super(context);
+        this.data = data;
+    }
+
+    public TimelineItem getData() {
+        return data;
     }
 }

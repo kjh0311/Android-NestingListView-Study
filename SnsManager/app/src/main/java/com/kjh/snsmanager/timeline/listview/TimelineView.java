@@ -10,7 +10,9 @@ import android.widget.TextView;
 
 import com.kjh.snsmanager.MainActivity;
 import com.kjh.snsmanager.R;
+import com.kjh.snsmanager.timeline.listitem.Post;
 import com.kjh.snsmanager.timeline.listitem.Timeline;
+import com.kjh.snsmanager.timeline.listitem.TimelineItem;
 
 import java.util.Vector;
 
@@ -44,7 +46,7 @@ public class TimelineView extends TimelinePostView {
 
     // TimelinePostAdapter 에서만 호출
     TimelineView(Context context, Timeline data, int level, TimelineView parentView) {
-        super(context);
+        super(context, data);
         this.mainActivity = (MainActivity) context;
         this.adapter = new TimelinePostAdapter(this.mainActivity, this, level);
         this.level = level;
@@ -105,7 +107,24 @@ public class TimelineView extends TimelinePostView {
     private void dataToView(Timeline data) {
         informationTextView.setText(data.getInformation());
         timeTextView.setText(data.getTime());
+
+
+//        TimelinePostView view;
+//
+//        for (int i=0; i<data.getItems().size(); i++) {
+//            TimelineItem item = data.getItems().get(i);
+//
+//            if (item instanceof Timeline) {
+//                view = new TimelineView(mainActivity, (Timeline) item, level+1, this);
+//            } else {
+//                view = new PostView(mainActivity, (Post) item, this);
+//            }
+//        }
+//
+//        //adapter.setItems(childViews);
+//        adapter.setViews(childViews);
         adapter.setItems(data.getItems());
+
         listView.setAdapter(this.adapter);
 
         //setListViewHeightBasedOnChildren(listView);

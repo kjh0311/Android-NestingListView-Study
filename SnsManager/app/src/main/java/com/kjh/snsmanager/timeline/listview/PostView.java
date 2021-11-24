@@ -37,7 +37,7 @@ public class PostView extends TimelinePostView {
 
 
     PostView(Context context, Post data, TimelineView parentView) {
-        super(context);
+        super(context, data);
         this.mainActivity = (MainActivity) context;
         this.data = data;
         this.parentView = parentView;
