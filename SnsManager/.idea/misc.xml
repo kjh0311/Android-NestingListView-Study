@@ -1,5 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="..\:/Users/KimJinHee/OneDrive/Korea_IT_Academy/Korea-IT-Android-Project/SnsManager/app/src/main/res/layout/activity_main.xml" value="0.1" />
+        <entry key="..\:/Users/KimJinHee/OneDrive/Korea_IT_Academy/Korea-IT-Android-Project/SnsManager/app/src/main/res/layout/fragment.xml" value="0.21331521739130435" />
+        <entry key="..\:/Users/KimJinHee/OneDrive/Korea_IT_Academy/Korea-IT-Android-Project/SnsManager/app/src/main/res/layout/fragment_post.xml" value="0.1656534954407295" />
+        <entry key="..\:/Users/KimJinHee/OneDrive/Korea_IT_Academy/Korea-IT-Android-Project/SnsManager/app/src/main/res/layout/fragment_timeline.xml" value="0.10434782608695652" />
+        <entry key="..\:/Users/KimJinHee/OneDrive/Korea_IT_Academy/Korea-IT-Android-Project/SnsManager/app/src/main/res/layout/list_timeline.xml" value="0.1358695652173913" />
+        <entry key="..\:/Users/KimJinHee/OneDrive/Korea_IT_Academy/Korea-IT-Android-Project/SnsManager/app/src/main/res/layout/post.xml" value="0.1" />
+        <entry key="..\:/Users/KimJinHee/OneDrive/Korea_IT_Academy/Korea-IT-Android-Project/SnsManager/app/src/main/res/layout/timeline.xml" value="0.13966707267559886" />
+      </map>
+    </option>
+  </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="Android Studio default JDK" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>

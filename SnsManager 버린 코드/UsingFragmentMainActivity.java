@@ -1,23 +1,16 @@
 package com.kjh.snsmanager;
 
+import android.os.Bundle;
+import android.util.Log;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 
-import android.os.Bundle;
-import android.util.Log;
-import android.view.Gravity;
-import android.view.View;
-import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.ScrollView;
-import android.widget.TextView;
-
 import com.kjh.snsmanager.timeline.JSONObjectViewModel;
-import com.kjh.snsmanager.timeline.listitem.Post;
-import com.kjh.snsmanager.timeline.listitem.Timeline;
-import com.kjh.snsmanager.timeline.listview.TimelineView;
+import com.kjh.snsmanager.timeline.fragment.PostFragment;
+import com.kjh.snsmanager.timeline.fragment.TimelineFragment;
 import com.kjh.snsmanager.vo.SimpleDate;
 
 import org.json.JSONArray;
@@ -30,7 +23,7 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
-public class MainActivity extends AppCompatActivity {
+public class UsingFragmentMainActivity extends AppCompatActivity {
     private static final String TAG_PARENT = "TAG_PARENT";
 
     private static final String
@@ -48,25 +41,39 @@ public class MainActivity extends AppCompatActivity {
             new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
     // dateToTimeline에서 지속적으로 활용함
-    private Timeline timelineData, lastYearData, lastMonthData, lastWeekData, lastDayData;
-    private SimpleDate lastDate = new SimpleDate();
+    private TimelineFragment timelineFragment, lastYearFragment, lastMonthFragment, lastWeekFragment, lastDayFragment;
+    private SimpleDate prevDate = new SimpleDate();
 
-    // 이것만 있으면 타임라인 전체에 변화 감지 가능
-    private TimelineView timelineView;
-    // 타임라인 다시그리기용 레퍼런스
-    private ScrollView timelineScrollView;
+
+    private JSONObjectViewModel viewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        //TimelineView timelineView = new TimelineView(getApplicationContext(), timelineData);
-        // 뷰 내부에서 메인 엑티비티의 메서드를 사용해야 하므로 메인 액티비티를 컨텍스트로 전달
-        timelineData = new Timeline(informationYear);
-        timelineView = new TimelineView(this, timelineData);
-        timelineScrollView = findViewById(R.id.timelineScrollView);
-        //mainListView = findViewById(R.id.mainListView);
-        timelineScrollView.addView(timelineView);
+
+        //timelineFragment = new TimelineFragment();
+        timelineFragment = TimelineFragment.newInstance(informationYear);
+
+//        getSupportFragmentManager().beginTransaction()
+//                .replace(R.id.timeline_container, timelineFragment)
+//                .commit();
+
+        // 참고 사이트: https://developer.android.com/guide/fragments/communicate?hl=ko
+        viewModel = new ViewModelProvider(this).get(JSONObjectViewModel.class);
+        viewModel.getObject().observe(this, object -> {
+            // Perform an action with the latest item data
+            // PostFragment에서 viewModel에 select를 호출하면 실행되는 부분
+            createNewPost(object);
+        });
+    }
+    
+    // 프래그먼트가 전개된 후에 프래그먼트에 내용을 추가해야함
+    @Override
+    protected void onResumeFragments() {
+        super.onResumeFragments();
+
+        PostFragment lastPostFragment = null;
 
         JSONArray data = new JSONArray();
         JSONObject newPost;
@@ -89,36 +96,40 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-//        // 0번째가 맨 위
-        Post lastPost = lastDayData.getLastPost();
-        if (lastPost != null)
-            lastPost.setWriteMode(true);
-
-        timelineScrollView.invalidate();
+        lastPostFragment = (PostFragment) lastDayFragment.getLastFragment();
+        lastPostFragment.setToWriteMode();
     }
 
-    // 어떤 포스트가 삭제되었는지 전수조사를 요청함
-    public void notifyDataSetChanged() {
-        timelineView.notifyDataSetChanged();
+    @Override
+    public void onBackPressed() {
+
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        Fragment parentFragment = fragmentManager.findFragmentByTag(TAG_PARENT);
+        if (parentFragment != null && parentFragment.getChildFragmentManager().getBackStackEntryCount() > 0) {
+            parentFragment.getChildFragmentManager().popBackStack();
+        } else {
+            super.onBackPressed();
+        }
     }
 
 
     // 새 슬롯 만들기
-    public void createNewPost(JSONObject writtenPostObject) {
+    private void createNewPost(JSONObject writtenPostObject) {
         try {
+            PostFragment lastPostFragment = null;
+
             JSONArray data = new JSONArray();
             JSONObject newPostObject = makePostObject(writtenPostObject.getString(JSONTag.MESSAGE));
             JSONObject newPostSlotObject = makePostObject();
 
-            data.put(newPostObject);
             data.put(newPostSlotObject);
+            data.put(newPostObject);
 
             dataToTimeline(data);
-
-            Post lastPost = lastDayData.getLastPost();
-            lastPost.setWriteMode(true);
-            timelineScrollView.invalidate();
-
+            lastPostFragment = (PostFragment) lastDayFragment.getLastFragment();
+            Log.d("index", lastPostFragment.getIndex()+"");
+            lastDayFragment.checkAllPosts();
+            lastPostFragment.setToWriteMode();
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -165,9 +176,8 @@ public class MainActivity extends AppCompatActivity {
         int am_pm, hour, minute;
 //        setToNowDate(nowDate);
 
-        //for (Object obj : data) {
-        //for (int i = data.length()-1; i >= 0 ; i--) {
-        for (int i=0; i<data.length(); i++) {
+//        for (Object obj : data) {
+        for (int i = data.length()-1; i >= 0 ; i--) {
             JSONObject jsonObject = (JSONObject) data.get(i);
 //        	System.out.println(jsonObject);
 
@@ -204,42 +214,42 @@ public class MainActivity extends AppCompatActivity {
 //        	System.out.println("변환이후 - am_pm: " + am_pm + ", hour: " + hour + ", minute: " + minute);
 //        	System.out.println(date);
 
-            if ( !date.dayEquals(lastDate) ) {
+            if ( !date.dayEquals(prevDate) ) {
 
-                if ( !date.weekEquals(lastDate) ) {
+                if ( !date.weekEquals(prevDate) ) {
 
-                    if ( !date.monthEquals(lastDate) ) {
+                    if ( !date.monthEquals(prevDate) ) {
 
-                        if ( !date.yearEquals(lastDate) ) {
+                        if ( !date.yearEquals(prevDate) ) {
 
-                            timelineData.addTimeline(informationMonth, date.year+"년");
-                            lastYearData = timelineData.getLastTimeline();
-                            lastDate.year = date.year;
+                            //timelinePanel.addTimeline(informationMonth, date.year+"년");
+                            timelineFragment.addTimeline(informationMonth, date.year+"년");
+                            lastYearFragment = (TimelineFragment) timelineFragment.getLastFragment();
+                            prevDate.year = date.year;
                         }
 
-                        lastYearData.addTimeline(informationWeek, date.month+"월");
-                        lastMonthData = lastYearData.getLastTimeline();
-                        lastDate.month = date.month;
+                        // yearPanel 생성이 확실히 보장된 후 넣음
+                        lastYearFragment.addTimeline(informationWeek, date.month+"월");
+                        lastMonthFragment = (TimelineFragment) lastYearFragment.getLastFragment();
+                        prevDate.month = date.month;
                     }
 
-                    lastMonthData.addTimeline(informationDay, date.week+"주");
-                    lastWeekData = lastMonthData.getLastTimeline();
-                    lastDate.week = date.week;
+                    lastMonthFragment.addTimeline(informationDay, date.week+"주");
+                    lastWeekFragment = (TimelineFragment) lastMonthFragment.getLastFragment();
+                    prevDate.week = date.week;
                 }
 
                 String dayTitle = date.toDayTitle();
-
-                lastWeekData.addTimeline(informationPost, dayTitle);
-                lastDayData = lastWeekData.getLastTimeline();
-                lastDate.day = date.day;
+                lastWeekFragment.addTimeline(informationPost, dayTitle);
+                lastDayFragment = (TimelineFragment) lastWeekFragment.getLastFragment();
+                prevDate.day = date.day;
             }
 
             String timeFormat = "%s %d시 %d분 게시물";
             String timeTitle = String.format(timeFormat, am_pm_texts[am_pm], hour, minute);
 
             // 모든 게시물은 메인 클래스를 가지도록 함
-            lastDayData.addPost(timeTitle, jsonObject);
-            //lastDayData.add(0, new Post(timeTitle, jsonObject));
+            lastDayFragment.addPost(timeTitle, jsonObject);
         }
     }
 
@@ -271,4 +281,5 @@ public class MainActivity extends AppCompatActivity {
         }
         return localTime;
     }
+
 }
