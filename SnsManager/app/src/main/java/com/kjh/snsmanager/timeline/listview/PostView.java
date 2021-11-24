@@ -7,7 +7,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.kjh.snsmanager.JSONTag;
 import com.kjh.snsmanager.MainActivity;
@@ -106,7 +105,7 @@ public class PostView extends TimelinePostView {
     // 사용자에게 확인 대화상자 열어야함
     private void delete() {
         Log.d("PostView", "삭제");
-        parentView.requestDecrease();
+        parentView.setDecreasing(true);
         data.requestRemoveThis();
         // mainActivity에 어떤 요소가 삭제되었는지 전수조사를 요청함
         mainActivity.notifyDataSetChanged();
@@ -131,7 +130,7 @@ public class PostView extends TimelinePostView {
             data.requestRemoveThis();
             // mainActivity에 어떤 요소가 삭제되었는지 전수조사를 요청함
             mainActivity.notifyDataSetChanged();
-            parentView.requestIncrease();
+            parentView.setDecreasing(false);
         } catch (JSONException e) {
             e.printStackTrace();
         }
