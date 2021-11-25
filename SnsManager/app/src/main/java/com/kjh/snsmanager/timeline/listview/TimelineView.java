@@ -14,7 +14,9 @@ import com.kjh.snsmanager.timeline.listitem.Post;
 import com.kjh.snsmanager.timeline.listitem.Timeline;
 import com.kjh.snsmanager.timeline.listitem.TimelineItem;
 
+import java.util.ArrayList;
 import java.util.Vector;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 
 public class TimelineView extends TimelinePostView {
@@ -36,7 +38,7 @@ public class TimelineView extends TimelinePostView {
 
     private boolean hidden;
     private int hiddenHeight;
-    private Vector<TimelinePostView> childViews;
+    private CopyOnWriteArrayList<TimelinePostView> childViews;
 
 
     // MainActivity에서만 호출
@@ -53,7 +55,7 @@ public class TimelineView extends TimelinePostView {
         this.parentView = parentView;
 
         // null 포인터 처리를 위한 더미 벡터
-        this.childViews = new Vector<TimelinePostView>();
+        this.childViews = new CopyOnWriteArrayList<TimelinePostView>();
 
         LayoutInflater inflater = (LayoutInflater) super.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         //LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -169,11 +171,11 @@ public class TimelineView extends TimelinePostView {
         }
     }
 
-    public void setChildViews(Vector<TimelinePostView> childViews) {
+    public void setChildViews(CopyOnWriteArrayList<TimelinePostView> childViews) {
         this.childViews = childViews;
     }
 
-    public Vector<TimelinePostView> getChildViews() {
+    public CopyOnWriteArrayList<TimelinePostView> getChildViews() {
         return childViews;
     }
 }
