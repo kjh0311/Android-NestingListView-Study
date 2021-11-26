@@ -20,7 +20,13 @@ abstract public class TimelinePostView extends ScrollView {
         this.data = data;
     }
 
+    public void setData(TimelineItem data) {
+        this.data = data;
+    }
+
     public TimelineItem getData() {
         return data;
     }
+
+    public abstract void clearFocus();
 }

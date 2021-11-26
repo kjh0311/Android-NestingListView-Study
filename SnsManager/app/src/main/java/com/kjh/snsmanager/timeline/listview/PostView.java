@@ -12,6 +12,7 @@ import com.kjh.snsmanager.JSONTag;
 import com.kjh.snsmanager.MainActivity;
 import com.kjh.snsmanager.R;
 import com.kjh.snsmanager.timeline.listitem.Post;
+import com.kjh.snsmanager.timeline.listitem.TimelineItem;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -154,6 +155,17 @@ public class PostView extends TimelinePostView {
         readLayout.setVisibility(LinearLayout.INVISIBLE);
         editLayout.setVisibility(LinearLayout.INVISIBLE);
         writeLayout.setVisibility(LinearLayout.VISIBLE);
+    }
+
+    @Override
+    public void setData(TimelineItem data) {
+        this.setData((Post)data);
+    }
+
+    @Override
+    public void clearFocus() {
+        modifyEditText.clearFocus();
+        newEditText.clearFocus();
     }
 
     public void setData(Post data) {

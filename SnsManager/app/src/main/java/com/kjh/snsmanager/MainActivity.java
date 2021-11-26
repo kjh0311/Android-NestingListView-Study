@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ScrollView;
@@ -37,12 +38,13 @@ public class MainActivity extends AppCompatActivity {
             configFileName = "config.properties",
             configInformationHide = "hide-information",
             configInformationHideComment = "Hide information",
-            informationHide = "설명 숨기기",
+            informationShow = "설명 표시",
             informationYear = "연도를 클릭하여 해당 연도의 게시물을 보거나 숨길 수 있습니다.",
             informationMonth = "월을 클릭하여 해당 월의 게시물을 보거나 숨길 수 있습니다.",
             informationWeek = "주간 게시물을 보거나 숨길 수 있습니다.",
             informationDay = "특정 날짜의 게시물을 보거나 숨길 수 있습니다.",
             informationPost = "특정 게시물을 보거나 숨길 수 있습니다.";
+    
 
     private static final SimpleDateFormat timeFormatter =
             new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
@@ -51,15 +53,23 @@ public class MainActivity extends AppCompatActivity {
     private Timeline timelineData, lastYearData, lastMonthData, lastWeekData, lastDayData;
     private SimpleDate lastDate = new SimpleDate();
 
+
     // 이것만 있으면 타임라인 전체에 변화 감지 가능
     private TimelineView timelineView;
+
     // 타임라인 다시그리기용 레퍼런스
     private ScrollView timelineScrollView;
 
+
+    private CheckBox chkInformation;
+
+
+    // 평상 시 작성한 소스코드와 스타일이 많이 다른데 이는 논리적 흐름 때문에 코드 순서를 바꿔놓았기 때문
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         //TimelineView timelineView = new TimelineView(getApplicationContext(), timelineData);
         // 뷰 내부에서 메인 엑티비티의 메서드를 사용해야 하므로 메인 액티비티를 컨텍스트로 전달
         timelineData = new Timeline(informationYear);
@@ -68,6 +78,22 @@ public class MainActivity extends AppCompatActivity {
         //mainListView = findViewById(R.id.mainListView);
         timelineScrollView.addView(timelineView);
 
+        chkInformation = findViewById(R.id.chkInformation);
+        chkInformation.setOnClickListener(new CheckBox.OnClickListener() {
+            @Override
+            public void onClick(View checkbox) {
+                if (((CheckBox)checkbox).isChecked()) {
+                    // TODO : CheckBox is checked.
+                    timelineView.setInformationVisible(true);
+
+                } else {
+                    // TODO : CheckBox is unchecked.
+                    timelineView.setInformationVisible(false);
+                }
+            }
+        });
+        
+        // 아래는 테스트 데이터
         JSONArray data = new JSONArray();
         JSONObject newPost;
 

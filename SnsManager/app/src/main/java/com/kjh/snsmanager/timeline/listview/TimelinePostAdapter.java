@@ -34,11 +34,11 @@ public class TimelinePostAdapter extends BaseAdapter {
     private int heightGotCount = 0; // 구한 height의 수를 기록함
 
 
-    public TimelinePostAdapter(MainActivity mainActivity, TimelineView parentView, int parentLevel) {
+    public TimelinePostAdapter(MainActivity mainActivity, Vector<TimelineItem> items, TimelineView parentView, int parentLevel) {
         this.context = mainActivity;
+        this.items = items;
         this.parentView = parentView;
         this.parentLevel = parentLevel;
-
         this.views = new CopyOnWriteArrayList<TimelinePostView>();
     }
 
@@ -82,7 +82,7 @@ public class TimelinePostAdapter extends BaseAdapter {
     // 이 메서드는 처음에 매 요소마다 불리고, notifyDataSetChanged 호출 이후 또 불린다.
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        boolean viewGotten = false;
+        boolean dataChanged = false;
 
         context = parent.getContext();
 
@@ -95,15 +95,10 @@ public class TimelinePostAdapter extends BaseAdapter {
         Log.d("views.size()", views.size()+"");
         Log.d("position", position+"");
 
-//        if (items.size() != views.size()) {
-//            //Log.d("어댑터", "게시물 삭제 혹은 생성 발생");
-//            // 처음 열 때, 따로 생성 모두 포함됨
-//            if (items.size() > views.size()) {
-//                Log.d("어댑터", "게시물 추가");
-//            } else {
-//                Log.d("어댑터", "게시물 삭제");
-//            }
-//        }
+
+        if (items.size() != views.size()) {
+            dataChanged = true;
+        }
         
         // 게시물 삭제 시 삭제된 게시물 탐지해서 저장된 뷰 지우기
         // 뷰가 더 많음
@@ -128,49 +123,65 @@ public class TimelinePostAdapter extends BaseAdapter {
                 TimelineItem item = items.get(i);
 
                 // if 문에 한 번도 안 걸리면 true
-                boolean found = true;
+                boolean isNewItem = true;
                 for (TimelinePostView view : views) {
                     if (view.getData() == item) {
-                        found = false;
+                        isNewItem = false;
                         break; // 뷰가 이미 있음
                     }
                 }
-                if (found) {
-                    View view = addViewFromItem(item);
-
+                if (isNewItem) {
+                    // 처음 실행 시에는 여기에 안 걸리도록 제한함
+                    // 제한한 이유는 높이 계산이 오작동하기 때문
+                    Log.d("i < views.size()", "조건 검사");
                     if (i < views.size()) {
+                        Log.d("i < views.size()", "조건 통과");
+                        View view = addViewFromItem(item);
                         views.add(i, (TimelinePostView) view);
+                        Log.d("어댑터", "getView 재귀 호출");
                         getView(i, view, parent);
+                        Log.d("어댑터", "getView 재귀 호출 복귀");
                     }
-                    //views.set(0, (TimelinePostView) view);
-                    //views.add((TimelinePostView) view);
                 }
             }
         }
 
+        parentView.setChildViews(views);
+
         TimelineItem item = items.get(position);
+
+        // 처음 실행 시에는 views.size() 값이 
+//        Log.d("views.size()", views.size()+"");
+//        Log.d("position", position+"");
 
         // 처음 실행 시에만 전체 뷰를 새로 만들도록 필터링해서 속도 최적화함
         if (position < views.size()) {
             convertView = views.get(position);
-            viewGotten = true;
+            //viewGotten = true;
         }
 
+//        if (dataChanged) return convertView;
+        Log.d("convertView == null", "조건 검사");
         if (convertView == null) {
+            Log.d("convertView == null", "조건 통과");
             convertView = addViewFromItem(item);
             views.add((TimelinePostView) convertView);
             //TimelinePostView timelinePostView = (TimelinePostView)convertView;
             //int height = ((TimelinePostView)convertView).getCheckedHeight();
         }
         else {
-            // 게시물 처음 숨길 때 이곳으로 감
-            // 그리고 게시물 생성 및 삭제와 관련된 부분
-            Log.d("어댑터", "게시물 생성 안 함");
-            if (item instanceof Timeline) {
-                ((TimelineView)convertView).setData((Timeline) item);
-            } else {
-                ((PostView)convertView).setData((Post) item);
-            }
+            // 게시물 생성, 삭제, 숨기기 후에는 여기에 진입해야 제대로 반영됨
+            // 게시물 숨기기와 관련된 부분
+            // 그리고 게시물 생성, 삭제와 관련된 부분
+            Log.d("게시물 생성 안 함", "setData 호출");
+            
+            // 이렇게하면 무한 재귀호출에 의한 스택 오버플로우 문제가 발생함
+            ((TimelinePostView)convertView).setData(item);
+//            if (item instanceof Timeline) {
+//                ((TimelineView)convertView).setData((Timeline) item);
+//            } else {
+//                ((PostView)convertView).setData((Post) item);
+//            }
         }
 
 
@@ -184,14 +195,14 @@ public class TimelinePostAdapter extends BaseAdapter {
                 @Override
                 public void run() {
                     int height = -1;
-                    Log.d("do", "진입하기 전");
+//                    Log.d("do", "진입하기 전");
                     do {
                         try {
                             Thread.sleep(100);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
-                        Log.d("do", "내부");
+//                        Log.d("do", "내부");
 //                        height = postView.getCheckedHeight();
                         height = postView.getCheckedHeight();
                         //height = timelinePostView.getMeasuredHeight();
@@ -232,13 +243,6 @@ public class TimelinePostAdapter extends BaseAdapter {
             }.start();
         }
 
-        Log.d("sizeChecked", heightChecked +"");
-        if (heightChecked == false) {
-            for (int i=0; i<items.size(); i++) {
-
-            }
-            heightChecked = true; // 이 값은 notifyDataSetChanged에서 false로 변함
-        }
         return convertView;
     }
     

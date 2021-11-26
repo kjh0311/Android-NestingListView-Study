@@ -50,7 +50,7 @@ public class TimelineView extends TimelinePostView {
     TimelineView(Context context, Timeline data, int level, TimelineView parentView) {
         super(context, data);
         this.mainActivity = (MainActivity) context;
-        this.adapter = new TimelinePostAdapter(this.mainActivity, this, level);
+        this.adapter = new TimelinePostAdapter(this.mainActivity, data.getItems(),this, level);
         this.level = level;
         this.parentView = parentView;
 
@@ -75,6 +75,9 @@ public class TimelineView extends TimelinePostView {
             Log.d("hiddenHeight", hiddenHeight+"");
             Log.d("hidden", hidden+"");
 
+
+            // 에디트 텍스트에 포커스가 있으면 프로그램이 정지되므로 포커스를 막음
+            clearFocus();
             // 세 번을 눌러야 hidden이 true가 됨
             // 어댑터 때문에 이렇게 되는 것으로 보임
             // 어댑터에서 게시물을 지우고 다시 생성하기 때문
@@ -94,7 +97,6 @@ public class TimelineView extends TimelinePostView {
         //listViewContainer = findViewById(R.id.listViewContainer);
         //testTextView = findViewById(R.id.testTextView);
         listView = findViewById(R.id.listView);
-
         //Toast.makeText(super.getContext(), data.getInformation(), Toast.LENGTH_SHORT).show();
 
         if (data != null) {
@@ -102,32 +104,31 @@ public class TimelineView extends TimelinePostView {
         }
     }
 
+
+    @Override
+    public void setData(TimelineItem data) {
+        this.setData((Timeline)data);
+    }
+
+    @Override
+    public void clearFocus() {
+        for (TimelinePostView view: childViews) {
+            view.clearFocus();
+        }
+    }
+
     public void setData(Timeline data) {
+        super.setData(data);
         dataToView(data);
     }
 
     private void dataToView(Timeline data) {
         informationTextView.setText(data.getInformation());
         timeTextView.setText(data.getTime());
-
-
-//        TimelinePostView view;
-//
-//        for (int i=0; i<data.getItems().size(); i++) {
-//            TimelineItem item = data.getItems().get(i);
-//
-//            if (item instanceof Timeline) {
-//                view = new TimelineView(mainActivity, (Timeline) item, level+1, this);
-//            } else {
-//                view = new PostView(mainActivity, (Post) item, this);
-//            }
-//        }
-//
-//        //adapter.setItems(childViews);
-//        adapter.setViews(childViews);
         adapter.setItems(data.getItems());
-
         listView.setAdapter(this.adapter);
+        //listView.requestFocus();
+
 
         //setListViewHeightBasedOnChildren(listView);
     }
@@ -177,5 +178,19 @@ public class TimelineView extends TimelinePostView {
 
     public CopyOnWriteArrayList<TimelinePostView> getChildViews() {
         return childViews;
+    }
+
+    public void setInformationVisible(boolean informationVisible) {
+        if (informationVisible) {
+            informationTextView.setVisibility(VISIBLE);
+        } else {
+            informationTextView.setVisibility(GONE);
+        }
+
+        for (TimelinePostView view: childViews) {
+            if (view instanceof TimelineView) {
+                ((TimelineView)view).setInformationVisible(informationVisible);
+            }
+        }
     }
 }
