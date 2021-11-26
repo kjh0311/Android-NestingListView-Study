@@ -27,9 +27,10 @@ public class TimelinePostAdapter extends BaseAdapter {
     //private Vector<TimelinePostView> items;
     // 뷰 삭제 시 오류나므로 Vector 대신 CopyOnWriteArrayList 사용
     private CopyOnWriteArrayList<TimelinePostView> views;
-
-    private boolean heightChecked = false;
     // 포스트 뷰의 높이를 기록하는 벡터
+    //private CopyOnWriteArrayList<Integer> viewHeights;
+
+//    private boolean heightChecked = false;
     private int totalHeight = 0; // height의 누적값을 넣음
     private int heightGotCount = 0; // 구한 height의 수를 기록함
 
@@ -40,6 +41,7 @@ public class TimelinePostAdapter extends BaseAdapter {
         this.parentView = parentView;
         this.parentLevel = parentLevel;
         this.views = new CopyOnWriteArrayList<TimelinePostView>();
+        //this.views = new CopyOnWriteArrayList<Integer>();
     }
 
     public void setItems(Vector<TimelineItem> items) {
@@ -86,14 +88,14 @@ public class TimelinePostAdapter extends BaseAdapter {
 
         context = parent.getContext();
 
-        Log.d("어댑터", "getView 호출");
+//        Log.d("어댑터", "getView 호출");
 
 //        TimelinePostView item = items.get(position);
 
-        Log.d("level", parentLevel+"");
-        Log.d("items.size()", items.size()+"");
-        Log.d("views.size()", views.size()+"");
-        Log.d("position", position+"");
+//        Log.d("level", parentLevel+"");
+//        Log.d("items.size()", items.size()+"");
+//        Log.d("views.size()", views.size()+"");
+//        Log.d("position", position+"");
 
 
         if (items.size() != views.size()) {
@@ -133,20 +135,18 @@ public class TimelinePostAdapter extends BaseAdapter {
                 if (isNewItem) {
                     // 처음 실행 시에는 여기에 안 걸리도록 제한함
                     // 제한한 이유는 높이 계산이 오작동하기 때문
-                    Log.d("i < views.size()", "조건 검사");
+//                    Log.d("i < views.size()", "조건 검사");
                     if (i < views.size()) {
-                        Log.d("i < views.size()", "조건 통과");
+//                        Log.d("i < views.size()", "조건 통과");
                         View view = addViewFromItem(item);
                         views.add(i, (TimelinePostView) view);
-                        Log.d("어댑터", "getView 재귀 호출");
+//                        Log.d("어댑터", "getView 재귀 호출");
                         getView(i, view, parent);
-                        Log.d("어댑터", "getView 재귀 호출 복귀");
+//                        Log.d("어댑터", "getView 재귀 호출 복귀");
                     }
                 }
             }
         }
-
-        parentView.setChildViews(views);
 
         TimelineItem item = items.get(position);
 
@@ -161,9 +161,9 @@ public class TimelinePostAdapter extends BaseAdapter {
         }
 
 //        if (dataChanged) return convertView;
-        Log.d("convertView == null", "조건 검사");
+//        Log.d("convertView == null", "조건 검사");
         if (convertView == null) {
-            Log.d("convertView == null", "조건 통과");
+//            Log.d("convertView == null", "조건 통과");
             convertView = addViewFromItem(item);
             views.add((TimelinePostView) convertView);
             //TimelinePostView timelinePostView = (TimelinePostView)convertView;
@@ -173,7 +173,7 @@ public class TimelinePostAdapter extends BaseAdapter {
             // 게시물 생성, 삭제, 숨기기 후에는 여기에 진입해야 제대로 반영됨
             // 게시물 숨기기와 관련된 부분
             // 그리고 게시물 생성, 삭제와 관련된 부분
-            Log.d("게시물 생성 안 함", "setData 호출");
+//            Log.d("게시물 생성 안 함", "setData 호출");
             
             // 이렇게하면 무한 재귀호출에 의한 스택 오버플로우 문제가 발생함
             ((TimelinePostView)convertView).setData(item);
@@ -184,71 +184,111 @@ public class TimelinePostAdapter extends BaseAdapter {
 //            }
         }
 
+        if (items.size() > 0 && items.size() == views.size()) {
+            parentView.setChildViews(views);
 
-        // 높이조절 부분 (게시물 생성 여부와 무관하게 있어야함)
-
-        // 아이템 수 만큼 실행 되어야함
-        if (item instanceof Post) {
-            PostView postView = (PostView)convertView;
-
-            new Thread(){
+            new Thread() {
                 @Override
                 public void run() {
-                    int height = -1;
-//                    Log.d("do", "진입하기 전");
-                    do {
-                        try {
-                            Thread.sleep(100);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
+                    boolean heightChecked = false;
+
+                    for (int i=0; i<views.size(); i++) {
+                    //for (TimelinePostView view : views) {
+                        if (i>position) {
+                            break;
                         }
-//                        Log.d("do", "내부");
-//                        height = postView.getCheckedHeight();
-                        height = postView.getCheckedHeight();
-                        //height = timelinePostView.getMeasuredHeight();
-                    } while (height == -1);
-                    totalHeight += height;
-                    heightGotCount++;
+                        else if (items.get(0) instanceof Post) {
+                            //PostView postView = (PostView) view;
+                            PostView postView = (PostView) views.get(i);
+                            int height;
+                            do {
+                                try {
+                                    Thread.sleep(100);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+//                                    Log.d("do", "내부");
+//                                    height = postView.getCheckedHeight();
+                                height = postView.getCheckedHeight();
+                                //height = timelinePostView.getMeasuredHeight();
+                            } while (height == -1);
 
-//                    Log.d("height", height+"");
-//                    Log.d("totalHeight", totalHeight+"");
+                            heightChecked = true;
+                        }
+                    }
 
-                    // 새로 생긴 뷰는 확인 안 함을 확인
-                    //Log.d("postView", postView+"");
-                    Log.d("items.size()", items.size()+"");
-                    Log.d("views.size()", views.size()+"");
-                    Log.d("heightGotCount", heightGotCount+"");
-
-//                    if (heightGotCount == views.size()) {
-                    if (heightGotCount == items.size()) {
-                        // UI 다루는 작업은 메인 쓰레드에서 해야함
-                        //parentView.setListHeight(totalHeight);
-                        // 참고 사이트: https://hancho1111.tistory.com/183
-
-                        Log.d("제출 level", parentLevel+"");
-                        Log.d("원소 수", heightGotCount+"");
-                        Log.d("totalHeight", totalHeight+"");
-
-                        ((MainActivity)context).runOnUiThread(new Runnable(){
-                            @Override public void run() {
-                                parentView.setListHeight(totalHeight);
-                                totalHeight = 0;
-                                heightGotCount = 0;
-                                //parentView.setListViewHeightBasedOnChildren();
-                            }
+                    if (heightChecked) {
+                        ((MainActivity)context).runOnUiThread(() -> {
+                            parentView.setListViewHeightByChildren();
                         });
-
                     }
                 }
             }.start();
         }
+
+        // 높이조절 부분 (게시물 생성 여부와 무관하게 있어야함)
+
+        // 아이템 수 만큼 실행 되어야함
+//        if (item instanceof Post) {
+//            PostView postView = (PostView)convertView;
+//
+//            new Thread(){
+//                @Override
+//                public void run() {
+//                    int height = -1;
+////                    Log.d("do", "진입하기 전");
+//                    do {
+//                        try {
+//                            Thread.sleep(100);
+//                        } catch (InterruptedException e) {
+//                            e.printStackTrace();
+//                        }
+////                        Log.d("do", "내부");
+////                        height = postView.getCheckedHeight();
+//                        height = postView.getCheckedHeight();
+//                        //height = timelinePostView.getMeasuredHeight();
+//                    } while (height == -1);
+//                    totalHeight += height;
+//                    heightGotCount++;
+//
+////                    Log.d("height", height+"");
+////                    Log.d("totalHeight", totalHeight+"");
+//
+//                    // 새로 생긴 뷰는 확인 안 함을 확인
+//                    //Log.d("postView", postView+"");
+//                    Log.d("items.size()", items.size()+"");
+//                    Log.d("views.size()", views.size()+"");
+//                    Log.d("heightGotCount", heightGotCount+"");
+//
+////                    if (heightGotCount == views.size()) {
+//                    if (heightGotCount == items.size()) {
+//                        // UI 다루는 작업은 메인 쓰레드에서 해야함
+//                        //parentView.setListHeight(totalHeight);
+//                        // 참고 사이트: https://hancho1111.tistory.com/183
+//
+//                        Log.d("제출 level", parentLevel+"");
+//                        Log.d("원소 수", heightGotCount+"");
+//                        Log.d("totalHeight", totalHeight+"");
+//
+//                        ((MainActivity)context).runOnUiThread(() -> {
+//                            //parentView.setDecreasing(false);
+//                            parentView.setListHeight(totalHeight);
+//                            totalHeight = 0;
+//                            heightGotCount = 0;
+//                            //parentView.setListViewHeightBasedOnChildren();
+//                        });
+//
+//                    }
+//                }
+//            }.start();
+//        }
 
         return convertView;
     }
     
     
     private View addViewFromItem(TimelineItem item) {
-        Log.d("어댑터", "게시물 생성");
+//        Log.d("어댑터", "게시물 생성");
         View view;
 
         if (item instanceof Timeline) {

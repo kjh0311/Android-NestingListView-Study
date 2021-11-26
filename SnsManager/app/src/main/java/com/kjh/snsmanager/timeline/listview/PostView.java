@@ -34,7 +34,8 @@ public class PostView extends TimelinePostView {
     private EditText newEditText;
     private Button btnPost;
 
-    private int height = -1; // 높이가 입력 안 된 경우 -1
+    //private int height = -1; // 높이가 입력 안 된 경우 -1
+    private boolean modifyEditTextFocused, newEditTextFocused;
 
 
     PostView(Context context, Post data, TimelineView parentView) {
@@ -105,7 +106,7 @@ public class PostView extends TimelinePostView {
     }
     // 사용자에게 확인 대화상자 열어야함
     private void delete() {
-        Log.d("PostView", "삭제");
+//        Log.d("PostView", "삭제");
         parentView.setDecreasing(true);
         data.requestRemoveThis();
         // mainActivity에 어떤 요소가 삭제되었는지 전수조사를 요청함
@@ -123,7 +124,7 @@ public class PostView extends TimelinePostView {
 
     // 쓰기 모드 버튼 동작
     private void post() {
-        Log.d("PostView", "게시");
+//        Log.d("PostView", "게시");
         try {
             JSONObject jsonObject = new JSONObject();
             jsonObject.put(JSONTag.MESSAGE, newEditText.getText());
@@ -163,10 +164,48 @@ public class PostView extends TimelinePostView {
     }
 
     @Override
-    public void clearFocus() {
-        modifyEditText.clearFocus();
-        newEditText.clearFocus();
+    public boolean clearEditTextFocus() {
+        // 나중에 다시 열 때 복귀할 상태 저장
+        boolean focusCleared = false;
+
+        if (modifyEditText.isFocused()) {
+            modifyEditText.clearFocus();
+            modifyEditTextFocused = true;
+            focusCleared = true;
+        } else if (newEditText.isFocused()) {
+            newEditText.clearFocus();
+            newEditTextFocused = true;
+            focusCleared = true;
+        }
+
+        return focusCleared;
     }
+
+
+    @Override
+    public boolean restoreEditTextFocus() {
+        boolean focusRequested = false;
+
+        Log.d("modifyEditTextFocused", modifyEditTextFocused+"");
+        Log.d("newEditTextFocused", modifyEditTextFocused+"");
+
+        if (modifyEditTextFocused) {
+            do {
+                modifyEditText.requestFocus();
+            } while(modifyEditText.isFocused() == false);
+            modifyEditTextFocused = false;
+            focusRequested = true;
+        } else if (newEditTextFocused) {
+            do {
+                newEditText.requestFocus();
+            } while(newEditText.isFocused() == false);
+            newEditTextFocused = false;
+            focusRequested = true;
+        }
+
+        return focusRequested;
+    }
+
 
     public void setData(Post data) {
         this.data = data;
@@ -186,7 +225,7 @@ public class PostView extends TimelinePostView {
         // 이거 강제로 호출하니까 됨
         onWindowFocusChanged(true);
         checkedHeight = height;
-        //height = -1; // 체크 안 한 상태로 돌려놓음
+//        height = -1; // 체크 안 한 상태로 돌려놓음
         return checkedHeight;
     }
 }

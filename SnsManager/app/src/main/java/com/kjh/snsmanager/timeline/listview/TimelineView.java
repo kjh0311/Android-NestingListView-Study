@@ -10,12 +10,9 @@ import android.widget.TextView;
 
 import com.kjh.snsmanager.MainActivity;
 import com.kjh.snsmanager.R;
-import com.kjh.snsmanager.timeline.listitem.Post;
 import com.kjh.snsmanager.timeline.listitem.Timeline;
 import com.kjh.snsmanager.timeline.listitem.TimelineItem;
 
-import java.util.ArrayList;
-import java.util.Vector;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 
@@ -33,7 +30,7 @@ public class TimelineView extends TimelinePostView {
     private TextView testTextView;
     private ListView listView;
 
-    private int level, height;
+    private int level; //, height;
     private boolean decreasing; // 감소모드
 
     private boolean hidden;
@@ -70,14 +67,11 @@ public class TimelineView extends TimelinePostView {
         informationTextView = findViewById(R.id.informationTextView);
 
         timeTextView.setOnClickListener((view)->{
-            Log.d("timeTextView", "click");
-            Log.d("height", height+"");
-            Log.d("hiddenHeight", hiddenHeight+"");
-            Log.d("hidden", hidden+"");
+//            Log.d("timeTextView", "click");
+//            Log.d("height", height+"");
+//            Log.d("hiddenHeight", hiddenHeight+"");
+//            Log.d("hidden", hidden+"");
 
-
-            // 에디트 텍스트에 포커스가 있으면 프로그램이 정지되므로 포커스를 막음
-            clearFocus();
             // 세 번을 눌러야 hidden이 true가 됨
             // 어댑터 때문에 이렇게 되는 것으로 보임
             // 어댑터에서 게시물을 지우고 다시 생성하기 때문
@@ -85,8 +79,11 @@ public class TimelineView extends TimelinePostView {
             if (hidden) {
                 setDecreasing(false);
                 setListHeight(hiddenHeight);
+                //restoreEditTextFocus();
                 hidden = false;
             } else {
+                // 에디트 텍스트에 포커스가 있으면 프로그램이 정지되므로 포커스를 막음
+                clearEditTextFocus();
                 hiddenHeight = height;
                 setDecreasing(true);
                 setListHeight(0);
@@ -111,10 +108,34 @@ public class TimelineView extends TimelinePostView {
     }
 
     @Override
-    public void clearFocus() {
+    public boolean clearEditTextFocus() {
+        boolean focusCleared = false;
+
         for (TimelinePostView view: childViews) {
-            view.clearFocus();
+            focusCleared = view.clearEditTextFocus();
+            if (focusCleared) {
+                //Log.d("focusCleared", focusCleared+"");
+                break;
+            }
+
         }
+        return focusCleared;
+    }
+
+    @Override
+    public boolean restoreEditTextFocus() {
+        boolean focusRequested = false;
+        for (TimelinePostView view: childViews) {
+            //view.clearEditTextFocus();
+            focusRequested = view.restoreEditTextFocus();
+            if (focusRequested)
+            {
+                //Log.d("focusRequested", focusRequested+"");
+                // 진입은 성공했지만 포커스 부여가 안 됨
+                break;
+            }
+        }
+        return focusRequested;
     }
 
     public void setData(Timeline data) {
@@ -141,15 +162,20 @@ public class TimelineView extends TimelinePostView {
     // 어댑터에서 크기 구해온 뒤 호출하는 메서드
     // 마지막 레벨이면 어댑터에서 호출되고, 그렇지 않다면 차일드에 의해 호출됨
     void setListHeight(int newHeight) {
-//        Log.d("decresing", decresing+"");
+//        Log.d("decreasing", decreasing+"");
 //        Log.d("level", level+"");
+//        Log.d("height", height+"");
 //        Log.d("newHeight", newHeight+"");
+
+        //newHeight = 2516;
 
         // 감소모드에서는 증가 못 시킴
         if (decreasing && newHeight > height) {
             return;
         } // 감소모드가 아니면 감소시키면 안 됨
         else if (!decreasing && newHeight < height) {
+            return;
+        } else if (newHeight == height){
             return;
         }
         height = newHeight;
@@ -160,9 +186,27 @@ public class TimelineView extends TimelinePostView {
         listView.setLayoutParams(params);
 
         if (parentView != null) {
-            parentView.setListHeight(newHeight+200);
+            //parentView.setListHeight(newHeight+200);
+            parentView.setListViewHeightByChildren();
         }
 
+    }
+
+    void setListViewHeightByChildren() {
+        //setListHeight(newHeight+200);
+        int newHeight = 0;
+
+        TimelinePostView view = null;
+        for (int i=0; i < childViews.size(); i++) {
+            view = childViews.get(i);
+//            TimelineView timelineView = (TimelinePostView) view;
+            newHeight += view.height;
+        }
+        if (view instanceof TimelineView) {
+            newHeight += 200;
+        }
+        
+        setListHeight(newHeight);
     }
 
     public void setDecreasing(boolean decreasing) {
@@ -174,6 +218,9 @@ public class TimelineView extends TimelinePostView {
 
     public void setChildViews(CopyOnWriteArrayList<TimelinePostView> childViews) {
         this.childViews = childViews;
+        
+        // 여기서 높이 구하면 될 듯
+        // 여기서 높이 구한 후 구한 높이가 기존과 다르면 변경
     }
 
     public CopyOnWriteArrayList<TimelinePostView> getChildViews() {
