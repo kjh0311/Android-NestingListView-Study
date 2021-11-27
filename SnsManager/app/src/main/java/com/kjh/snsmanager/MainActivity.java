@@ -58,7 +58,8 @@ public class MainActivity extends AppCompatActivity {
     private TimelineView timelineView;
 
     // 타임라인 다시그리기용 레퍼런스
-    private ScrollView timelineScrollView;
+    //private ScrollView timelineScrollView;
+    private LinearLayout mainLayout;
 
 
     private CheckBox chkInformation;
@@ -74,9 +75,10 @@ public class MainActivity extends AppCompatActivity {
         // 뷰 내부에서 메인 엑티비티의 메서드를 사용해야 하므로 메인 액티비티를 컨텍스트로 전달
         timelineData = new Timeline(informationYear);
         timelineView = new TimelineView(this, timelineData);
-        timelineScrollView = findViewById(R.id.timelineScrollView);
-        //mainListView = findViewById(R.id.mainListView);
-        timelineScrollView.addView(timelineView);
+        //timelineScrollView = findViewById(R.id.timelineScrollView);
+        mainLayout = findViewById(R.id.mainLayout);
+        //timelineScrollView.addView(timelineView);
+        mainLayout.addView(timelineView);
 
         chkInformation = findViewById(R.id.chkInformation);
         chkInformation.setOnClickListener(new CheckBox.OnClickListener() {
@@ -97,17 +99,18 @@ public class MainActivity extends AppCompatActivity {
         JSONArray data = new JSONArray();
         JSONObject newPost;
 
-        newPost = makePostObject("게시물1");
-        data.put(newPost);
-
-        newPost = makePostObject("게시물2");
+        newPost = makePostObject();
         data.put(newPost);
 
         newPost = makePostObject("게시물3");
         data.put(newPost);
 
-        newPost = makePostObject();
+        newPost = makePostObject("게시물2");
         data.put(newPost);
+
+        newPost = makePostObject("게시물1");
+        data.put(newPost);
+
 
         try {
             dataToTimeline(data);
@@ -120,7 +123,8 @@ public class MainActivity extends AppCompatActivity {
         if (lastPost != null)
             lastPost.setWriteMode(true);
 
-        timelineScrollView.invalidate();
+        //timelineScrollView.invalidate();
+        mainLayout.invalidate();
     }
 
     // 어떤 포스트가 삭제되었는지 전수조사를 요청함
@@ -133,17 +137,19 @@ public class MainActivity extends AppCompatActivity {
     public void createNewPost(JSONObject writtenPostObject) {
         try {
             JSONArray data = new JSONArray();
-            JSONObject newPostObject = makePostObject(writtenPostObject.getString(JSONTag.MESSAGE));
-            JSONObject newPostSlotObject = makePostObject();
 
-            data.put(newPostObject);
+            JSONObject newPostSlotObject = makePostObject();
+            JSONObject newPostObject = makePostObject(writtenPostObject.getString(JSONTag.MESSAGE));
+
             data.put(newPostSlotObject);
+            data.put(newPostObject);
 
             dataToTimeline(data);
 
             Post lastPost = lastDayData.getLastPost();
             lastPost.setWriteMode(true);
-            timelineScrollView.invalidate();
+            //timelineScrollView.invalidate();
+            mainLayout.invalidate();
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -192,8 +198,8 @@ public class MainActivity extends AppCompatActivity {
 //        setToNowDate(nowDate);
 
         //for (Object obj : data) {
-        //for (int i = data.length()-1; i >= 0 ; i--) {
-        for (int i=0; i<data.length(); i++) {
+        for (int i = data.length()-1; i >= 0 ; i--) {
+        //for (int i=0; i<data.length(); i++) {
             JSONObject jsonObject = (JSONObject) data.get(i);
 //        	System.out.println(jsonObject);
 

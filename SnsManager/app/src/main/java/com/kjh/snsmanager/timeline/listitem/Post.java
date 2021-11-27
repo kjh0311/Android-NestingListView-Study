@@ -6,10 +6,10 @@ import org.json.JSONObject;
 
 public class Post extends TimelineItem {
     private String timeTitle;
-    private JSONObject jsonObject;
+    private final JSONObject jsonObject;
     private boolean writeMode;
 
-    // 타임라인에서 addPost로만 생성
+    // 타임라인에서 addPost 로만 생성
     Post(Timeline parentTimeline, String timeTitle, JSONObject jsonObject) {
         super(parentTimeline);
         this.timeTitle = timeTitle;

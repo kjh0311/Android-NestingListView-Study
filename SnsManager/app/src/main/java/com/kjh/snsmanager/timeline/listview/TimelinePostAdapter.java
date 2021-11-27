@@ -15,24 +15,15 @@ import java.util.Vector;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 
-//public class TimelinePostAdapter extends BaseAdapter {
 public class TimelinePostAdapter extends BaseAdapter {
 
     private Context context;
     private TimelineView parentView;
     private int parentLevel;
 
-    //private Vector<TimelineItem> items;
     private Vector<TimelineItem> items;
-    //private Vector<TimelinePostView> items;
     // 뷰 삭제 시 오류나므로 Vector 대신 CopyOnWriteArrayList 사용
     private CopyOnWriteArrayList<TimelinePostView> views;
-    // 포스트 뷰의 높이를 기록하는 벡터
-    //private CopyOnWriteArrayList<Integer> viewHeights;
-
-//    private boolean heightChecked = false;
-    private int totalHeight = 0; // height의 누적값을 넣음
-    private int heightGotCount = 0; // 구한 height의 수를 기록함
 
 
     public TimelinePostAdapter(MainActivity mainActivity, Vector<TimelineItem> items, TimelineView parentView, int parentLevel) {
@@ -41,21 +32,10 @@ public class TimelinePostAdapter extends BaseAdapter {
         this.parentView = parentView;
         this.parentLevel = parentLevel;
         this.views = new CopyOnWriteArrayList<TimelinePostView>();
-        //this.views = new CopyOnWriteArrayList<Integer>();
     }
 
     public void setItems(Vector<TimelineItem> items) {
-    //public void setItems(Vector<TimelinePostView> items) {
         this.items = items;
-        //this.views = new Vector<TimelinePostView>(items.size());
-//        for (int i=0; i<items.size(); i++) {
-//            views.add(null);
-//        }
-    }
-
-    // 아이템에 상응하는 뷰를 미리 지정함
-    public void setViews(CopyOnWriteArrayList<TimelinePostView> views) {
-        this.views = views;
     }
 
 
@@ -160,28 +140,19 @@ public class TimelinePostAdapter extends BaseAdapter {
             //viewGotten = true;
         }
 
-//        if (dataChanged) return convertView;
 //        Log.d("convertView == null", "조건 검사");
         if (convertView == null) {
 //            Log.d("convertView == null", "조건 통과");
             convertView = addViewFromItem(item);
             views.add((TimelinePostView) convertView);
-            //TimelinePostView timelinePostView = (TimelinePostView)convertView;
-            //int height = ((TimelinePostView)convertView).getCheckedHeight();
         }
         else {
             // 게시물 생성, 삭제, 숨기기 후에는 여기에 진입해야 제대로 반영됨
             // 게시물 숨기기와 관련된 부분
             // 그리고 게시물 생성, 삭제와 관련된 부분
 //            Log.d("게시물 생성 안 함", "setData 호출");
-            
-            // 이렇게하면 무한 재귀호출에 의한 스택 오버플로우 문제가 발생함
+
             ((TimelinePostView)convertView).setData(item);
-//            if (item instanceof Timeline) {
-//                ((TimelineView)convertView).setData((Timeline) item);
-//            } else {
-//                ((PostView)convertView).setData((Post) item);
-//            }
         }
 
         if (items.size() > 0 && items.size() == views.size()) {
@@ -225,63 +196,6 @@ public class TimelinePostAdapter extends BaseAdapter {
                 }
             }.start();
         }
-
-        // 높이조절 부분 (게시물 생성 여부와 무관하게 있어야함)
-
-        // 아이템 수 만큼 실행 되어야함
-//        if (item instanceof Post) {
-//            PostView postView = (PostView)convertView;
-//
-//            new Thread(){
-//                @Override
-//                public void run() {
-//                    int height = -1;
-////                    Log.d("do", "진입하기 전");
-//                    do {
-//                        try {
-//                            Thread.sleep(100);
-//                        } catch (InterruptedException e) {
-//                            e.printStackTrace();
-//                        }
-////                        Log.d("do", "내부");
-////                        height = postView.getCheckedHeight();
-//                        height = postView.getCheckedHeight();
-//                        //height = timelinePostView.getMeasuredHeight();
-//                    } while (height == -1);
-//                    totalHeight += height;
-//                    heightGotCount++;
-//
-////                    Log.d("height", height+"");
-////                    Log.d("totalHeight", totalHeight+"");
-//
-//                    // 새로 생긴 뷰는 확인 안 함을 확인
-//                    //Log.d("postView", postView+"");
-//                    Log.d("items.size()", items.size()+"");
-//                    Log.d("views.size()", views.size()+"");
-//                    Log.d("heightGotCount", heightGotCount+"");
-//
-////                    if (heightGotCount == views.size()) {
-//                    if (heightGotCount == items.size()) {
-//                        // UI 다루는 작업은 메인 쓰레드에서 해야함
-//                        //parentView.setListHeight(totalHeight);
-//                        // 참고 사이트: https://hancho1111.tistory.com/183
-//
-//                        Log.d("제출 level", parentLevel+"");
-//                        Log.d("원소 수", heightGotCount+"");
-//                        Log.d("totalHeight", totalHeight+"");
-//
-//                        ((MainActivity)context).runOnUiThread(() -> {
-//                            //parentView.setDecreasing(false);
-//                            parentView.setListHeight(totalHeight);
-//                            totalHeight = 0;
-//                            heightGotCount = 0;
-//                            //parentView.setListViewHeightBasedOnChildren();
-//                        });
-//
-//                    }
-//                }
-//            }.start();
-//        }
 
         return convertView;
     }

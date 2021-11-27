@@ -130,7 +130,7 @@ public class PostView extends TimelinePostView {
             jsonObject.put(JSONTag.MESSAGE, newEditText.getText());
             mainActivity.createNewPost(jsonObject);
             data.requestRemoveThis();
-            // mainActivity에 어떤 요소가 삭제되었는지 전수조사를 요청함
+            // mainActivity 에 어떤 요소가 삭제되었는지 전수조사를 요청함
             mainActivity.notifyDataSetChanged();
             parentView.setDecreasing(false);
         } catch (JSONException e) {

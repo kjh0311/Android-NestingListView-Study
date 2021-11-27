@@ -41,19 +41,19 @@
 <!--        android:gravity="center"-->
 <!--        />-->
 
-    <ScrollView
-        android:id="@+id/timelineScrollView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+<!--    <ScrollView-->
+<!--        android:id="@+id/timelineScrollView"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent">-->
 
-<!-- 프래그먼트 버전 -->
-<!--        <FrameLayout-->
-<!--            android:id="@+id/timeline_container"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="match_parent">-->
+<!--&lt;!&ndash; 프래그먼트 버전 &ndash;&gt;-->
+<!--&lt;!&ndash;        <FrameLayout&ndash;&gt;-->
+<!--&lt;!&ndash;            android:id="@+id/timeline_container"&ndash;&gt;-->
+<!--&lt;!&ndash;            android:layout_width="match_parent"&ndash;&gt;-->
+<!--&lt;!&ndash;            android:layout_height="match_parent">&ndash;&gt;-->
 
-<!--        </FrameLayout>-->
+<!--&lt;!&ndash;        </FrameLayout>&ndash;&gt;-->
 
-    </ScrollView>
+<!--    </ScrollView>-->
 
 </LinearLayout>
