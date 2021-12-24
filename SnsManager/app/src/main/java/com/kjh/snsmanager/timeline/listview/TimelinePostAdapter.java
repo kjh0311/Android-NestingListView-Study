@@ -81,7 +81,7 @@ public class TimelinePostAdapter extends BaseAdapter {
         if (items.size() != views.size()) {
             dataChanged = true;
         }
-        
+
         // 게시물 삭제 시 삭제된 게시물 탐지해서 저장된 뷰 지우기
         // 뷰가 더 많음
         if (items.size() < views.size()) {
@@ -130,7 +130,7 @@ public class TimelinePostAdapter extends BaseAdapter {
 
         TimelineItem item = items.get(position);
 
-        // 처음 실행 시에는 views.size() 값이 
+        // 처음 실행 시에는 views.size() 값이
 //        Log.d("views.size()", views.size()+"");
 //        Log.d("position", position+"");
 
@@ -151,7 +151,6 @@ public class TimelinePostAdapter extends BaseAdapter {
             // 게시물 숨기기와 관련된 부분
             // 그리고 게시물 생성, 삭제와 관련된 부분
 //            Log.d("게시물 생성 안 함", "setData 호출");
-
             ((TimelinePostView)convertView).setData(item);
         }
 
